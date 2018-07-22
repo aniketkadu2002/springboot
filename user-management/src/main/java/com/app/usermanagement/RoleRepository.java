@@ -14,5 +14,6 @@ import java.lang.String;
 public interface RoleRepository extends CrudRepository<Role, Integer>{
 	List<Role> findByRoleName(String rolename);
 	List<Role> findByRoleId(int roleId);
+	List<Role> findByPerson(Person person);
 }
 

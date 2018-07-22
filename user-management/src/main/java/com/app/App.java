@@ -3,7 +3,7 @@ package com.app;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"com.app.usermanagement"}) 
+@SpringBootApplication(scanBasePackages = {"com.app"}) 
 public class App {
 
 	public static void main(String[] args) {

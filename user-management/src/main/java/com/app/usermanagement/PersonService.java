@@ -24,6 +24,12 @@ public class PersonService {
 	public List<Person> getAllUsers() {
 		List<Person> personList = new ArrayList<Person>();
 		personRepository.findAll().forEach(personList::add);
+		
+		//we don't want to display the password.
+		personList.forEach(person->{
+			person.setPassword("");
+		});
+		
 		return personList;		
 	}
 	

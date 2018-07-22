@@ -20,4 +20,9 @@ public class RoleService {
 		List<Role> roles = roleRepository.findByRoleId(roleId);
 		return roles.size()>0?roles.get(0):null;
 	}
+	
+	public List<Role> findRoleByPerson(Person person){
+		List<Role> roles = roleRepository.findByPerson(person);
+		return roles;
+	}
 }
