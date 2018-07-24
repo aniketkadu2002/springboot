@@ -23,10 +23,16 @@ public class Role {
 
 	private String roleName;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+/*	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinTable(name = "roleusermapping", joinColumns = @JoinColumn(name = "role_id", referencedColumnName="roleId"), 
-	inverseJoinColumns = @JoinColumn(name = "person_id", referencedColumnName="personId"))
+	inverseJoinColumns = @JoinColumn(name = "person_id", referencedColumnName="personId"))*/
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "person_id", nullable  = false)	
 	private Person person;
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
 
 	public int getRoleId() {
 		return roleId;

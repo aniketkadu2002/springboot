@@ -31,9 +31,10 @@ public class Person {
 	
 	private String name;
 	
-	@OneToMany(cascade = CascadeType.ALL)
+/*	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "roleusermapping", joinColumns = @JoinColumn(name = "person_id", referencedColumnName="personId"), 
-	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName="roleId"))
+	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName="roleId"))*/
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "person")
 	private Set<Role> roles;
 	
 	public int getPersonId() {

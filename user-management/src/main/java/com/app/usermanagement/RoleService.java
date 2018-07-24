@@ -25,4 +25,8 @@ public class RoleService {
 		List<Role> roles = roleRepository.findByPerson(person);
 		return roles;
 	}
+	
+	public Role saveToDb(Role role) {
+		return roleRepository.save(role);
+	}
 }

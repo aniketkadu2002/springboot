@@ -35,7 +35,18 @@ public class PersonController {
 	
 	@RequestMapping(method=RequestMethod.POST, value="/users")
 	public void addUsers(@RequestBody Person user) {
-		Set<Role> dbRoleList = new HashSet<Role>();
+		
+		Set<Role> roleList = user.getRoles();
+
+		user.setRoles(new HashSet<Role>());
+		Person createdUser = personService.saveToDb(user);
+
+		roleList.forEach(role-> {
+			role.setPerson(createdUser);
+			Role dbRole = roleService.saveToDb(role);
+		});
+		
+/*		Set<Role> dbRoleList = new HashSet<Role>();
 		Set<Role> roleList = user.getRoles();
 		roleList.forEach(role-> dbRoleList.add(roleService.findRolebyRoleName(role.getRoleName())));
 		
@@ -47,7 +58,7 @@ public class PersonController {
 		if(dbRoleList.size()>0) {
 			createdUser.setRoles(dbRoleList);
 			personService.saveToDb(createdUser);
-		}
+		}*/
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT, value="/users/{personId}")

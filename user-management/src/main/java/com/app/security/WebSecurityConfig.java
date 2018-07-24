@@ -42,29 +42,68 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 		@Autowired
 		RoleService roleService;
 		
+		@Autowired
+	    private JwtAuthenticationEntryPoint unauthorizedHandler;
+		
 		private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		
 		@Override
 		protected void configure(HttpSecurity http) throws Exception{
 			
+			/** Basic HTTP Authentication ***/
 			
 			/*http.cors().and().csrf().disable()
 			.authorizeRequests().anyRequest().authenticated().and().httpBasic().and().authorizeRequests()
-			.antMatchers("/users").hasRole("CADMIN");*/
-			//.antMatchers("/").access("hasRole('CADMIN') and hasRole('DBA')")
+			.antMatchers("/users").hasRole("CADMIN")
+			.antMatchers("/").access("hasRole('CADMIN') and hasRole('DBA')");*/
 			
+			/*http.cors().and().csrf().disable()
+			.authorizeRequests()
+			.antMatchers("/generate-token").permitAll()
+			.antMatchers("/users").hasRole("USER")
+			.anyRequest().authenticated().and()
+			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			
+			http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);*/
+			
+			http.cors().and().csrf().disable().
+			authorizeRequests()
+			.antMatchers("/generate-token").permitAll()
+			.antMatchers("/users").hasRole("CADMIN")
+			.anyRequest().authenticated().and()
+			//.anyRequest().hasAuthority("USER").and()
+			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			
+			http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 			
 			/*** permit everyone **/
-			http.csrf().disable();
-	        http.authorizeRequests().antMatchers("/").permitAll();
+			/*http.csrf().disable();
+	        http.authorizeRequests().antMatchers("/").permitAll();*/
 			
 		}	
 		
-	   @Override
+	    @Override
 	    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	        auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder);
 	    }
+	    
+		@Bean
+		public JwtAuthentiationFilter authenticationTokenFilterBean() throws Exception {
+			return new JwtAuthentiationFilter();
+		}	    
 
+		/*@Override
+	    public void configure(WebSecurity web) throws Exception {
+	        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+	    }*/
+		
+		@Override
+		@Bean
+		public AuthenticationManager authenticationManagerBean() throws Exception {
+			return super.authenticationManagerBean();
+		}				
 	   
 		@Bean
 		protected 
@@ -74,21 +113,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 				@Override
 				public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 					
-					System.out.println("Fetching user details..." + username);
-					
+					System.out.println("Fetching user details..." + username);					
 					Person userCred = personService.getPersonByUserName(username);
 					if(userCred!=null) {
 						
-						//Set<Role> userRoles = userCred.getRoles();						
-						List<Role> userRoles = roleService.findRoleByPerson(userCred);
+						Set<Role> userRoles = userCred.getRoles();						
+						//List<Role> userRoles = roleService.findRoleByPerson(userCred);
 						
 						ArrayList<String> userRolesNames = new ArrayList<String>();
 						for(Role userRole : userRoles) {
-							userRolesNames.add(userRole.getRoleName());
+							userRolesNames.add(JwtConstants.ROLE_PREFIX + userRole.getRoleName());
 						}
 						
 						User usr = new User(userCred.getUserName(),userCred.getPassword(), true, true, true, true,
-								AuthorityUtils.createAuthorityList("CADMIN"));
+								AuthorityUtils.createAuthorityList(userRolesNames.toArray(new String[userRolesNames.size()])));
 						return usr;
 						
 					}else {
